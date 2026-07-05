@@ -210,7 +210,7 @@ const Index = () => {
           />
           <h2 className="font-display text-2xl md:text-3xl text-primary mt-8 leading-snug">
             Рад, что ты не отказалась 💕<br />
-            Будь готова к 20 часам,<br />я заеду!
+            Будь готова к {time},<br />я заеду!
           </h2>
           {date && (
             <div className="mt-6 bg-white/80 backdrop-blur rounded-2xl px-6 py-4 font-heading text-foreground shadow-md">
