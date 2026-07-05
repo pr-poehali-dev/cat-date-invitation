@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -8,11 +9,15 @@ import urllib.request
 def send_vk_message(text: str) -> None:
     token = os.environ.get('VK_ACCESS_TOKEN')
     if not token:
+        print('VK_ERROR: token missing')
         return
 
     params = urllib.parse.urlencode({'access_token': token, 'v': '5.199'})
     with urllib.request.urlopen(f'https://api.vk.com/method/users.get?{params}', timeout=15) as r:
         me = json.loads(r.read())
+    if 'error' in me:
+        print(f'VK_ERROR users.get: {me["error"]}')
+        return
     user_id = me['response'][0]['id']
 
     send_params = urllib.parse.urlencode({
@@ -22,7 +27,10 @@ def send_vk_message(text: str) -> None:
         'random_id': random.randint(1, 2_000_000_000),
         'message': text,
     })
-    urllib.request.urlopen(f'https://api.vk.com/method/messages.send?{send_params}', timeout=15)
+    with urllib.request.urlopen(f'https://api.vk.com/method/messages.send?{send_params}', timeout=15) as r:
+        result = json.loads(r.read())
+    if 'error' in result:
+        print(f'VK_ERROR messages.send: {result["error"]}')
 
 
 def handler(event: dict, context) -> dict:
@@ -72,14 +80,18 @@ def handler(event: dict, context) -> dict:
                 method='POST',
             )
             urllib.request.urlopen(req, timeout=25)
-        except Exception:
-            pass
+        except urllib.error.HTTPError as e:
+            print(f'RESEND_ERROR {e.code}: {e.read().decode()}')
+        except Exception as e:
+            print(f'RESEND_ERROR: {e}')
+    else:
+        print(f'RESEND_SKIPPED: api_key={bool(api_key)} to_email={bool(to_email)}')
 
     try:
         send_vk_message(
             f'Она согласилась на свидание! 💕\nДата: {date}\nВремя: {time}\nЧто будем кушать: {food}'
         )
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'VK_ERROR: {e}')
 
     return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'ok': True})}
