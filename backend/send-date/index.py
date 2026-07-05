@@ -1,6 +1,6 @@
 import json
 import os
-import random
+import random  # noqa
 import urllib.error
 import urllib.parse
 import urllib.request
