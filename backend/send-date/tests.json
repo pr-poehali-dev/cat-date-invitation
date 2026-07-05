@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "CORS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Send date email",
+      "method": "POST",
+      "path": "/",
+      "body": {"date": "2026-07-10", "time": "20:00", "food": "Пицца 🍕"},
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

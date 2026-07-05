@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import func2url from '../../backend/func2url.json';
 
 const KITTEN_IMG = 'https://cdn.poehali.dev/projects/f06181c3-645d-4cef-a63f-8283449ea57f/files/82d2ddeb-d5fd-447d-847c-b8dfc5073bd4.jpg';
 const SHOCKED_IMG = 'https://cdn.poehali.dev/projects/f06181c3-645d-4cef-a63f-8283449ea57f/files/7c951ecc-157a-49e2-8404-6385071ac60a.jpg';
@@ -49,6 +50,20 @@ const Index = () => {
   const onYes = () => {
     burstHearts();
     setTimeout(goNext, 350);
+  };
+
+  const finish = () => {
+    const foodItem = FOODS.find((f) => f.id === food);
+    fetch(func2url['send-date'], {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: date ? new Date(date).toLocaleDateString('ru-RU') : '—',
+        time,
+        food: foodItem ? `${foodItem.name} ${foodItem.emoji}` : '—',
+      }),
+    }).catch(() => {});
+    goNext();
   };
 
   return (
@@ -177,7 +192,7 @@ const Index = () => {
           </div>
           {food && (
             <button
-              onClick={goNext}
+              onClick={finish}
               className="mt-8 bg-primary text-primary-foreground font-heading font-bold text-lg px-12 py-4 rounded-full shadow-xl shadow-primary/40 hover:scale-110 active:scale-95 transition-transform animate-fade-in"
             >
               Продолжить →
